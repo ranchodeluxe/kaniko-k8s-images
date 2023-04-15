@@ -8,18 +8,17 @@ spec:
   containers:
   - name: kaniko-ubuntu-lunar-build
     image: gcr.io/kaniko-project/executor:debug
-    # debug command
 #    command: ["/busybox/sh", "-ec", "sleep 100000"]
 #    args: [
 #            "--context=git@github.com:ranchodeluxe/kaniko-k8s-images.git",
 #            "--destination=gcorradini2023/ubuntu-lunar:1.0.0",
 #            "--dockerfile=Dockerfile"
 #    ]
-     args: [
+    args: [
              "--context=dir://workspace",
              "--destination=gcorradini2023/ubuntu-lunar:2.0.0",
              "--dockerfile=Dockerfile"
-     ]
+    ]
     volumeMounts:
       - name: dockerhub-regcred-secret
         mountPath: /kaniko/.docker
