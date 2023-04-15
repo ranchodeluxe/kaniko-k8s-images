@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dockerfile-python-buster
+  namespace: kaniko
+data:
+  dockerfile: |
+    FROM python:buster
+    ENTRYPOINT ["python", "-m", "http.server"]
