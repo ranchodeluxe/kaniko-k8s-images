@@ -33,7 +33,9 @@ jobs:
       - name: find all Dockerfiles && create a helm values file dynamically
         id: valuesfile
         run: |
-          DOCKERFILES=$(find $PWD/manifest-builder/dockerfile_inputs/* -name "Dockerfile")
+          cd ./manifest-builder
+          DOCKERFILES=$(find dockerfile_inputs/* -name "Dockerfile")
+          cd ../
           VALUESFILE=./manifest-builder/values.yaml
           touch $VALUESFILE
           printf "versionLookup:\n" >> $VALUESFILE
@@ -51,9 +53,8 @@ jobs:
       - name: build helm templates
         id: helmbuild
         run: |
-          VALUESFILE=${{ steps.valuesfile.outputs.VALUESFILE }}
           cd ./manifest-builder
-          helm template -s templates/manifests.yaml . -f $VALUESFILES > ../deploy/manifests.yaml
+          helm template -s templates/manifests.yaml . -f values.yaml > ../deploy/manifests.yaml
           echo "############################################"
           cat ../deploy/manifests.yaml
           echo "############################################"
