@@ -1,4 +1,0 @@
-versionLookup:
-  dockerfile_inputs/python-buster/Dockerfile: 7.7.7
-  dockerfile_inputs/ubuntu-lunar/Dockerfile: 0.0.2
-  dockerfile_inputs/pangeo-base-image/Dockerfile: 0.0.3
