@@ -16,7 +16,7 @@ spec:
 #    ]
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:2.0.0",
+             "--destination=gcorradini2023/ubuntu-lunar:6.6.6",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
