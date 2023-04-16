@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko-ubuntu-lunar-build
+  namespace: kaniko
+spec:
+  restartPolicy: Never
+  containers:
+  - name: kaniko-ubuntu-lunar-build
+    image: gcr.io/kaniko-project/executor:debug
+#    command: ["/busybox/sh", "-ec", "sleep 100000"]
+#    args: [
+#            "--context=git@github.com:ranchodeluxe/kaniko-k8s-images.git",
+#            "--destination=gcorradini2023/ubuntu-lunar:1.0.0",
+#            "--dockerfile=Dockerfile"
+#    ]
+    args: [
+             "--context=dir://workspace",
+             "--destination=gcorradini2023/ubuntu-lunar:6.6.6",
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: dockerfile-ubuntu-lunar
+        items:
+          - key: dockerfile
+            path: Dockerfile
+
