@@ -16,9 +16,9 @@ jobs:
         id: commitsha_head
         run: |
           TEMP=$(git rev-parse HEAD)
-          echo ############################################
+          echo "############################################"
           echo $TEMP
-          echo ############################################
+          echo "############################################"
           echo "GIT_REV_HEAD=$TEMP" >> $GITHUB_OUTPUT
       - name: copy all Dockerfils to helm builder
         id: copydockerfiles
@@ -27,21 +27,13 @@ jobs:
           rm -rf ./manifest-builder/dockerfile_inputs
           cp -r ./images ./manifest-builder/dockerfile_inputs
           TEMP=$(ls ./manifest-builder/dockerfile_inputs)
-          echo ############################################
+          echo "############################################"
           echo $TEMP
-          echo ############################################
-      - name: find all Dockerfiles
-        id: dockerfiles
-        run: |
-          TEMP=$(find $PWD/manifest-builder/dockerfile_inputs/* -name "Dockerfile")
-          echo ############################################
-          echo $TEMP
-          echo ############################################
-          echo "DOCKERFILES=$TEMP" >> $GITHUB_OUTPUT
-      - name: create a helm values file dynamically
+          echo "############################################"
+      - name: find all Dockerfiles && create a helm values file dynamically
         id: valuesfile
         run: |
-          DOCKERFILES=${{ steps.dockerfiles.outputs.DOCKERFILES }}
+          DOCKERFILES=$(find $PWD/manifest-builder/dockerfile_inputs/* -name "Dockerfile")
           VALUESFILE=./manifest-builder/values.yaml
           touch $VALUESFILE
           printf "versionLookup:\n" >> $VALUESFILE
@@ -52,9 +44,9 @@ jobs:
             KEY_AND_VALUE="$BASE_KEY: 0.0.$VERSION"
             printf "  %s\n" $KEY_AND_VALUE >> $VALUESFILE
           done < <(echo "$DOCKERFILES")
-          echo ############################################
+          echo "############################################"
           echo cat $VALUESFILE
-          echo ############################################
+          echo "############################################"
           echo "VALUESFILE=$VALUESFILE" >> $GITHUB_OUTPUT
       - name: build helm templates
         id: helmbuild
@@ -62,9 +54,9 @@ jobs:
           VALUESFILE=${{ steps.valuesfile.outputs.VALUESFILE }}
           cd ./manifest-builder
           helm template -s templates/manifests.yaml . -f $VALUESFILES > ../deploy/manifests.yaml
-          echo ############################################
+          echo "############################################"
           echo cat ../deploy/manifests.yaml
-          echo ############################################
+          echo "############################################"
 #      - name: commit ./deploy changes back
 #        id: commitback
 #        run: |
