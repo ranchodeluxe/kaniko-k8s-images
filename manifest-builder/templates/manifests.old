@@ -1,22 +1,29 @@
+{{- range $filename, $config := .Values.dockerfiles -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-{{ $filename }}
+  namespace: argocd
+data:
+  dockerfile: |
+  {{- range $path, $bytes := $.Files.Glob $config.inputfile -}}
+  {{ $.Files.Get $path | nindent 4 }}
+  {{- end }}
+---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: kaniko-ubuntu-lunar-build
-  namespace: kaniko
+  name: pod-{{ $filename }}
+  namespace: argocd
 spec:
   restartPolicy: Never
   containers:
-  - name: kaniko-ubuntu-lunar-build
+  - name:  pod-{{ $filename }}
     image: gcr.io/kaniko-project/executor:debug
-#    command: ["/busybox/sh", "-ec", "sleep 100000"]
-#    args: [
-#            "--context=git@github.com:ranchodeluxe/kaniko-k8s-images.git",
-#            "--destination=gcorradini2023/ubuntu-lunar:1.0.0",
-#            "--dockerfile=Dockerfile"
-#    ]
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:6.6.6",
+             {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $config.basename  $config.version -}}
+             {{ $destination | nindent 13 }},
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
@@ -33,7 +40,9 @@ spec:
             path: config.json
     - name: dockerfile-volume
       configMap:
-        name: dockerfile-ubuntu-lunar
+        name: configmap-{{ $filename }}
         items:
           - key: dockerfile
             path: Dockerfile
+---
+{{- end }}

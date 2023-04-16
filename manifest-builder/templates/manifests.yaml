@@ -1,0 +1,52 @@
+{{- range $filepath, $_ := .Files.Glob "dockerfile_inputs/**" -}}
+{{- if (hasSuffix "Dockerfile" $filepath) }}
+{{- $dockersha256 := sha256sum $filepath }}
+{{- $basename := ($filepath | regexFind "[a-zA-Z0-9.-]*:[a-zA-Z0-9.-]*" | replace ":" "-" ) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+  namespace: argocd
+data:
+  dockerfile: |
+  {{- $.Files.Get $filepath | nindent 4 }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+  namespace: argocd
+spec:
+  restartPolicy: Never
+  containers:
+  - name:  pod-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+    image: gcr.io/kaniko-project/executor:debug
+    args: [
+             "--context=dir://workspace",
+             {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
+             {{- $version := get $.Values.versionLookup $versionlookuppath -}}
+             {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
+             {{ $destination | nindent 13 }},
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: configmap-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+        items:
+          - key: dockerfile
+            path: Dockerfile
+---
+{{- end }}
+{{- end }}
