@@ -23,6 +23,7 @@ jobs:
       - name: copy all Dockerfils to helm builder
         id: copydockerfiles
         run: |
+          ls -lah
           rm -rf ./manifest-builder/dockerfile_inputs
           cp ./images ./manifest-builder/dockerfile_inputs
           TEMP=$(ls ./manifest-builder/dockerfile_inputs)
