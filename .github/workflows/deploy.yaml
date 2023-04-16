@@ -45,7 +45,7 @@ jobs:
             printf "  %s\n" $KEY_AND_VALUE >> $VALUESFILE
           done < <(echo "$DOCKERFILES")
           echo "############################################"
-          echo cat $VALUESFILE
+          cat $VALUESFILE
           echo "############################################"
           echo "VALUESFILE=$VALUESFILE" >> $GITHUB_OUTPUT
       - name: build helm templates
@@ -55,7 +55,7 @@ jobs:
           cd ./manifest-builder
           helm template -s templates/manifests.yaml . -f $VALUESFILES > ../deploy/manifests.yaml
           echo "############################################"
-          echo cat ../deploy/manifests.yaml
+          cat ../deploy/manifests.yaml
           echo "############################################"
 #      - name: commit ./deploy changes back
 #        id: commitback
