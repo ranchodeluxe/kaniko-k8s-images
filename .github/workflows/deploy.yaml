@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: azure/setup-helm@v3
+
       - name: get HEAD sha
         id: commitsha_head
         run: |
@@ -54,7 +56,6 @@ jobs:
           echo ############################################
           echo "VALUESFILE=$VALUESFILE" >> $GITHUB_OUTPUT
       - name: build helm templates
-        uses: azure/setup-helm@v3
         id: helmbuild
         run: |
           VALUESFILE=${{ steps.valuesfile.outputs.VALUESFILE }}
@@ -64,7 +65,6 @@ jobs:
           echo cat ../deploy/manifests.yaml
           echo ############################################
 #      - name: commit ./deploy changes back
-#        uses: actions/checkout@v2
 #        id: commitback
 #        run: |
 #          git config --global user.name 'helmdeployuser'
