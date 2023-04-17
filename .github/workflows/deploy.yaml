@@ -67,11 +67,13 @@ jobs:
           git config --global user.email 'helmdeployuser@users.noreply.github.com'
           git config --global pull.rebase false
           git status
+          git fetch
           git stash
           git checkout deploy
           git pull origin deploy
           git merge main
           git stash apply
+          git add deploy/manifests.yaml
           git add -u
           git commit -am "deploy update ${{ steps.commitsha_head.outputs.GIT_REV_HEAD }}"
           git push origin deploy
