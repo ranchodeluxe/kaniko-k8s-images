@@ -1,6 +1,6 @@
 {{- range $filepath, $_ := .Files.Glob "dockerfile_inputs/**" -}}
 {{- if (hasSuffix "Dockerfile" $filepath) }}
-{{- $dockersha256 := sha256sum $filepath }}
+{{- $dockersha256 := (sha256sum ($.Files.Get $filepath)) }}
 {{- $basename := ($filepath | regexFind "[a-zA-Z0-9.-]*:[a-zA-Z0-9.-]*" | replace ":" "-" ) }}
 apiVersion: v1
 kind: ConfigMap
