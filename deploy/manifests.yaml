@@ -45,7 +45,7 @@ spec:
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/pangeo-base-image:0.0.20",
+             "--destination=gcorradini2023/pangeo-base-image:0.0.31",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
@@ -80,7 +80,7 @@ spec:
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/python-buster:0.0.55",
+             "--destination=gcorradini2023/python-buster:0.0.9",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
@@ -115,7 +115,7 @@ spec:
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:0.0.37",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.33",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
