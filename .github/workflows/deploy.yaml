@@ -70,7 +70,7 @@ jobs:
           BRANCHES=$(git branch)
           git fetch
           git stash
-          git checkout deploy
+          git checkout origin/deploy
           git pull origin deploy
           git merge main
           git stash apply
