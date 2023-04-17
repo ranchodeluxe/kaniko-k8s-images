@@ -76,6 +76,7 @@ jobs:
           git add deploy/manifests.yaml
           git add -u
           git commit -am "deploy update ${{ steps.commitsha_head.outputs.GIT_REV_HEAD }}"
+          git status
           git push origin deploy
 
 
