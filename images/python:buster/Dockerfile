@@ -1,2 +1,2 @@
 FROM python:buster
-ENTRYPOINT ["python", "-m", "http.server 9999"]
+ENTRYPOINT ["python", "-m", "http.server 8888"]
