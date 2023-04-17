@@ -43,8 +43,8 @@ jobs:
             BASE_KEY=$(echo $DOCKERFILE_PATH | sed 's/:/-/g')
             # TODO: this needs to be a semvar thing in the future
             VERSION=$((1 + $RANDOM % 100))
-            KEY_AND_VALUE=$(echo "$BASE_KEY: 0.0.$VERSION" | tr -d '\n')
-            printf "  %s\n" $KEY_AND_VALUE >> $VALUESFILE
+            KEY_AND_VALUE=$(printf "%s: 0.0.%s" $BASE_KEY $VERSION)
+            echo "  $KEY_AND_VALUE" >> $VALUESFILE
           done < <(echo "$DOCKERFILES")
           echo "############################################"
           cat $VALUESFILE
