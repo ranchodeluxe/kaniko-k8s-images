@@ -1,5 +1,5 @@
 
 versionLookup:
-  dockerfile_inputs/busybox-latest/Dockerfile: 0.0.11
-  dockerfile_inputs/python-buster/Dockerfile: 0.0.25
-  dockerfile_inputs/ubuntu-lunar/Dockerfile: 0.0.99
+  dockerfile_inputs/busybox-latest/Dockerfile: 0.0.92
+  dockerfile_inputs/python-buster/Dockerfile: 0.0.15
+  dockerfile_inputs/ubuntu-lunar/Dockerfile: 0.0.83
