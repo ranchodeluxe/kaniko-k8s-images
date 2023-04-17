@@ -58,14 +58,14 @@ jobs:
           echo "############################################"
           cat ../deploy/manifests.yaml
           echo "############################################"
-#      - name: commit ./deploy changes back
-#        id: commitback
-#        run: |
-#          git config --global user.name 'helmdeployuser'
-#          git config --global user.email 'helmdeployuser@users.noreply.github.com'
-#          VERSION=$((1 + $RANDOM % 100))
-#          git commit -am "deploy update $VERSION"
-#          git push origin main
+      - name: commit ./deploy changes back
+        id: commitback
+        run: |
+          git config --global user.name 'helmdeployuser'
+          git config --global user.email 'helmdeployuser@users.noreply.github.com'
+          VERSION=$((1 + $RANDOM % 100))
+          git commit -am "deploy update $VERSION"
+          git push origin main
 
 
 
