@@ -41,32 +41,34 @@ metadata:
 spec:
   ttlSecondsAfterFinished: 86400
   template:
-    containers:
-    - name:  job-busybox-latest-040b693780
-      image: gcr.io/kaniko-project/executor:debug
-      args: [
-               "--context=dir://workspace",
-             "--destination=gcorradini2023/busybox-latest:0.0.33",
-               "--dockerfile=Dockerfile"
-      ]
-      volumeMounts:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name:  job-busybox-latest-040b693780
+        image: gcr.io/kaniko-project/executor:debug
+        args: [
+                 "--context=dir://workspace",
+             "--destination=gcorradini2023/busybox-latest:0.0.77",
+                 "--dockerfile=Dockerfile"
+        ]
+        volumeMounts:
+          - name: dockerhub-regcred-secret
+            mountPath: /kaniko/.docker
+          - name: dockerfile-volume
+            mountPath: /workspace
+      volumes:
         - name: dockerhub-regcred-secret
-          mountPath: /kaniko/.docker
+          secret:
+            secretName: dockerhub-regcred
+            items:
+              - key: .dockerconfigjson
+                path: config.json
         - name: dockerfile-volume
-          mountPath: /workspace
-    volumes:
-      - name: dockerhub-regcred-secret
-        secret:
-          secretName: dockerhub-regcred
-          items:
-            - key: .dockerconfigjson
-              path: config.json
-      - name: dockerfile-volume
-        configMap:
-          name: configmap-busybox-latest-040b693780
-          items:
-            - key: dockerfile
-              path: Dockerfile
+          configMap:
+            name: configmap-busybox-latest-040b693780
+            items:
+              - key: dockerfile
+                path: Dockerfile
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: batch/v1
@@ -77,32 +79,34 @@ metadata:
 spec:
   ttlSecondsAfterFinished: 86400
   template:
-    containers:
-    - name:  job-python-buster-4a16c7408b
-      image: gcr.io/kaniko-project/executor:debug
-      args: [
-               "--context=dir://workspace",
-             "--destination=gcorradini2023/python-buster:0.0.52",
-               "--dockerfile=Dockerfile"
-      ]
-      volumeMounts:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name:  job-python-buster-4a16c7408b
+        image: gcr.io/kaniko-project/executor:debug
+        args: [
+                 "--context=dir://workspace",
+             "--destination=gcorradini2023/python-buster:0.0.30",
+                 "--dockerfile=Dockerfile"
+        ]
+        volumeMounts:
+          - name: dockerhub-regcred-secret
+            mountPath: /kaniko/.docker
+          - name: dockerfile-volume
+            mountPath: /workspace
+      volumes:
         - name: dockerhub-regcred-secret
-          mountPath: /kaniko/.docker
+          secret:
+            secretName: dockerhub-regcred
+            items:
+              - key: .dockerconfigjson
+                path: config.json
         - name: dockerfile-volume
-          mountPath: /workspace
-    volumes:
-      - name: dockerhub-regcred-secret
-        secret:
-          secretName: dockerhub-regcred
-          items:
-            - key: .dockerconfigjson
-              path: config.json
-      - name: dockerfile-volume
-        configMap:
-          name: configmap-python-buster-4a16c7408b
-          items:
-            - key: dockerfile
-              path: Dockerfile
+          configMap:
+            name: configmap-python-buster-4a16c7408b
+            items:
+              - key: dockerfile
+                path: Dockerfile
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: batch/v1
@@ -113,29 +117,31 @@ metadata:
 spec:
   ttlSecondsAfterFinished: 86400
   template:
-    containers:
-    - name:  job-ubuntu-lunar-389375b53e
-      image: gcr.io/kaniko-project/executor:debug
-      args: [
-               "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
-               "--dockerfile=Dockerfile"
-      ]
-      volumeMounts:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name:  job-ubuntu-lunar-389375b53e
+        image: gcr.io/kaniko-project/executor:debug
+        args: [
+                 "--context=dir://workspace",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.4",
+                 "--dockerfile=Dockerfile"
+        ]
+        volumeMounts:
+          - name: dockerhub-regcred-secret
+            mountPath: /kaniko/.docker
+          - name: dockerfile-volume
+            mountPath: /workspace
+      volumes:
         - name: dockerhub-regcred-secret
-          mountPath: /kaniko/.docker
+          secret:
+            secretName: dockerhub-regcred
+            items:
+              - key: .dockerconfigjson
+                path: config.json
         - name: dockerfile-volume
-          mountPath: /workspace
-    volumes:
-      - name: dockerhub-regcred-secret
-        secret:
-          secretName: dockerhub-regcred
-          items:
-            - key: .dockerconfigjson
-              path: config.json
-      - name: dockerfile-volume
-        configMap:
-          name: configmap-ubuntu-lunar-389375b53e
-          items:
-            - key: dockerfile
-              path: Dockerfile
+          configMap:
+            name: configmap-ubuntu-lunar-389375b53e
+            items:
+              - key: dockerfile
+                path: Dockerfile
