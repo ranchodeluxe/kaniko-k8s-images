@@ -67,22 +67,21 @@ jobs:
           git config --global user.email 'helmdeployuser@users.noreply.github.com'
           git config --global pull.rebase false
           ##########################
-          FIRST_STATUS=$(git status)
+          git status
           git add deploy/manifests.yaml
           git add -u
           git commit -am "deploy update ${{ steps.commitsha_head.outputs.GIT_REV_HEAD }}"
           SECOND_STATUS=$(git status)
           git fetch
           BRANCHES=$(git branch)
-          echo $FIRST_STATUS
           echo "###############################"
-          echo $BRANCHES
+          printf $BRANCHES
           echo "###############################"
-          echo $SECOND_STATUS
+          printf $SECOND_STATUS
           echo "###############################"
           ##########################
           git checkout deploy --
-          git merge main
+          git merge main --allow-unrelated-histories
           git push origin deploy
 
 
