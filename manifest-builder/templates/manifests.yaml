@@ -16,6 +16,8 @@ kind: Job
 metadata:
   name: job-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
   namespace: argocd
+  labels:
+    app: kariko-job
 spec:
   ttlSecondsAfterFinished: 300
   template:
