@@ -66,22 +66,21 @@ jobs:
           git config --global user.name 'helmdeployuser'
           git config --global user.email 'helmdeployuser@users.noreply.github.com'
           git config --global pull.rebase false
+          ##########################
           FIRST_STATUS=$(git status)
-          BRANCHES=$(git branch)
-          git fetch
-          git stash
-          git checkout origin/deploy
-          git pull origin deploy
-          git merge main
-          git stash apply
           git add deploy/manifests.yaml
           git add -u
-          SECOND_STATUS=$(git status)
           git commit -am "deploy update ${{ steps.commitsha_head.outputs.GIT_REV_HEAD }}"
+          SECOND_STATUS=$(git status)
+          git fetch
+          BRANCHES=$(git branch)
           echo $FIRST_STATUS
           echo $BRANCHES
           echo $SECOND_STATUS
-          #git push origin deploy
+          ##########################
+          git checkout deploy
+          git merge main
+          git push origin deploy
 
 
 
