@@ -49,6 +49,6 @@ spec:
           items:
             - key: dockerfile
               path: Dockerfile
-  ---
-  {{- end }}
-  {{- end }}
+---
+{{- end }}
+{{- end }}
