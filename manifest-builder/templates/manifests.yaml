@@ -17,12 +17,12 @@ metadata:
   name: job-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
   namespace: argocd
 spec:
-  ttlSecondsAfterFinished: 86400
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: Never
       containers:
-      - name:  job-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+      - name:  pod-job-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
