@@ -3,12 +3,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-busybox-latest-040b693780
+  name: configmap-busybox-latest-10f226a7b5
   namespace: argocd
 data:
   dockerfile: |
     FROM busybox:latest
-    ENTRYPOINT ["/busybox/sh", "-ec", "sleep 4000"]
+    ENTRYPOINT ["/busybox/sh", "-ec", "sleep 5000"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
@@ -36,19 +36,19 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: job-busybox-latest-040b693780
+  name: job-busybox-latest-10f226a7b5
   namespace: argocd
 spec:
-  ttlSecondsAfterFinished: 86400
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: Never
       containers:
-      - name:  job-busybox-latest-040b693780
+      - name:  pod-job-busybox-latest-10f226a7b5
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/busybox-latest:0.0.77",
+             "--destination=gcorradini2023/busybox-latest:0.0.4",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -65,7 +65,7 @@ spec:
                 path: config.json
         - name: dockerfile-volume
           configMap:
-            name: configmap-busybox-latest-040b693780
+            name: configmap-busybox-latest-10f226a7b5
             items:
               - key: dockerfile
                 path: Dockerfile
@@ -77,16 +77,16 @@ metadata:
   name: job-python-buster-4a16c7408b
   namespace: argocd
 spec:
-  ttlSecondsAfterFinished: 86400
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: Never
       containers:
-      - name:  job-python-buster-4a16c7408b
+      - name:  pod-job-python-buster-4a16c7408b
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/python-buster:0.0.30",
+             "--destination=gcorradini2023/python-buster:0.0.8",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -115,16 +115,16 @@ metadata:
   name: job-ubuntu-lunar-389375b53e
   namespace: argocd
 spec:
-  ttlSecondsAfterFinished: 86400
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: Never
       containers:
-      - name:  job-ubuntu-lunar-389375b53e
+      - name:  pod-job-ubuntu-lunar-389375b53e
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:0.0.4",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.68",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
