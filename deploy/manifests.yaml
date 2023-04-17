@@ -3,12 +3,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-pangeo-base-image-446e7353e4
+  name: configmap-busybox-latest-1cb8aa1b79
   namespace: argocd
 data:
   dockerfile: |
-    FROM pangeo/base-image:master
-    ENTRYPOINT ["/opt/conda/bin/conda", "env", "list"]
+    FROM busybox:latest
+    ENTRYPOINT ["/busybox/sh", "-ec", "sleep 1000"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
@@ -36,16 +36,16 @@ data:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-pangeo-base-image-446e7353e4
+  name: pod-busybox-latest-1cb8aa1b79
   namespace: argocd
 spec:
   restartPolicy: Never
   containers:
-  - name:  pod-pangeo-base-image-446e7353e4
+  - name:  pod-busybox-latest-1cb8aa1b79
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/pangeo-base-image:0.0.22",
+             "--destination=gcorradini2023/busybox-latest:0.0.59",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
@@ -62,7 +62,7 @@ spec:
             path: config.json
     - name: dockerfile-volume
       configMap:
-        name: configmap-pangeo-base-image-446e7353e4
+        name: configmap-busybox-latest-1cb8aa1b79
         items:
           - key: dockerfile
             path: Dockerfile
@@ -80,7 +80,7 @@ spec:
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/python-buster:0.0.54",
+             "--destination=gcorradini2023/python-buster:0.0.53",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
@@ -115,7 +115,7 @@ spec:
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:0.0.82",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.26",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
