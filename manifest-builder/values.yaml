@@ -1,5 +1,5 @@
 
 versionLookup:
-  dockerfile_inputs/pangeo-base-image/Dockerfile: 0.0.44
-  dockerfile_inputs/python-buster/Dockerfile: 0.0.11
-  dockerfile_inputs/ubuntu-lunar/Dockerfile: 0.0.18
+  dockerfile_inputs/pangeo-base-image/Dockerfile: 0.0.20
+  dockerfile_inputs/python-buster/Dockerfile: 0.0.55
+  dockerfile_inputs/ubuntu-lunar/Dockerfile: 0.0.37

@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: dockerfile-ubuntu-lunar
-  namespace: kaniko
-data:
-  dockerfile: |
-    FROM ubuntu:lunar
-    ENTRYPOINT ["/bin/bash", "-c", "echo Hello Kaniko from Kubernetes"]

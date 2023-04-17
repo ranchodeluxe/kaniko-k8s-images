@@ -1,0 +1,138 @@
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-pangeo-base-image-446e7353e4
+  namespace: argocd
+data:
+  dockerfile: |
+    FROM pangeo/base-image:master
+    ENTRYPOINT ["/opt/conda/bin/conda", "env", "list"]
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-python-buster-cdaef7d115
+  namespace: argocd
+data:
+  dockerfile: |
+    FROM python:buster
+    ENTRYPOINT ["python", "-m", "http.server"]
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-ubuntu-lunar-e2421d276f
+  namespace: argocd
+data:
+  dockerfile: |
+    FROM ubuntu:lunar
+    ENTRYPOINT ["/bin/bash", "-c", "echo Hello Kaniko from Kubernetes"]
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-pangeo-base-image-446e7353e4
+  namespace: argocd
+spec:
+  restartPolicy: Never
+  containers:
+  - name:  pod-pangeo-base-image-446e7353e4
+    image: gcr.io/kaniko-project/executor:debug
+    args: [
+             "--context=dir://workspace",
+             "--destination=gcorradini2023/pangeo-base-image:0.0.20",
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: configmap-pangeo-base-image-446e7353e4
+        items:
+          - key: dockerfile
+            path: Dockerfile
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-python-buster-cdaef7d115
+  namespace: argocd
+spec:
+  restartPolicy: Never
+  containers:
+  - name:  pod-python-buster-cdaef7d115
+    image: gcr.io/kaniko-project/executor:debug
+    args: [
+             "--context=dir://workspace",
+             "--destination=gcorradini2023/python-buster:0.0.55",
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: configmap-python-buster-cdaef7d115
+        items:
+          - key: dockerfile
+            path: Dockerfile
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-ubuntu-lunar-e2421d276f
+  namespace: argocd
+spec:
+  restartPolicy: Never
+  containers:
+  - name:  pod-ubuntu-lunar-e2421d276f
+    image: gcr.io/kaniko-project/executor:debug
+    args: [
+             "--context=dir://workspace",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.37",
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: configmap-ubuntu-lunar-e2421d276f
+        items:
+          - key: dockerfile
+            path: Dockerfile
