@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.DEPLOY_USER_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: azure/setup-helm@v3
 
       - name: get HEAD sha
@@ -71,18 +71,7 @@ jobs:
           git add deploy/manifests.yaml
           git add -u
           git commit -am "deploy update ${{ steps.commitsha_head.outputs.GIT_REV_HEAD }}"
-          SECOND_STATUS=$(git status)
-          git fetch
-          BRANCHES=$(git branch)
-          echo "###############################"
-          printf $BRANCHES
-          echo "###############################"
-          printf $SECOND_STATUS
-          echo "###############################"
-          ##########################
-          git checkout deploy --
-          git merge main --allow-unrelated-histories
-          git push origin deploy
+          git push origin main
 
 
 
