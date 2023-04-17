@@ -75,8 +75,11 @@ jobs:
           git fetch
           BRANCHES=$(git branch)
           echo $FIRST_STATUS
+          echo "###############################"
           echo $BRANCHES
+          echo "###############################"
           echo $SECOND_STATUS
+          echo "###############################"
           ##########################
           git checkout deploy --
           git merge main
