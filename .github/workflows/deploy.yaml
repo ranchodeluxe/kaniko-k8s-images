@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: {{ secrets.DEPLOY_USER_PAT }}
       - uses: azure/setup-helm@v3
 
       - name: get HEAD sha
@@ -63,8 +65,7 @@ jobs:
         run: |
           git config --global user.name 'helmdeployuser'
           git config --global user.email 'helmdeployuser@users.noreply.github.com'
-          VERSION=$((1 + $RANDOM % 100))
-          git commit -am "deploy update $VERSION"
+          git commit -am "deploy update {{ steps.commitsha_head.output.GIT_REV_HEAD }}"
           git push origin main
 
 
