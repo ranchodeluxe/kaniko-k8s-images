@@ -38,6 +38,8 @@ kind: Job
 metadata:
   name: job-busybox-latest-10f226a7b5
   namespace: argocd
+  labels:
+    app: kariko-job
 spec:
   ttlSecondsAfterFinished: 300
   template:
@@ -48,7 +50,7 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/busybox-latest:0.0.4",
+             "--destination=gcorradini2023/busybox-latest:0.0.24",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -76,6 +78,8 @@ kind: Job
 metadata:
   name: job-python-buster-4a16c7408b
   namespace: argocd
+  labels:
+    app: kariko-job
 spec:
   ttlSecondsAfterFinished: 300
   template:
@@ -86,7 +90,7 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/python-buster:0.0.8",
+             "--destination=gcorradini2023/python-buster:0.0.27",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -114,6 +118,8 @@ kind: Job
 metadata:
   name: job-ubuntu-lunar-389375b53e
   namespace: argocd
+  labels:
+    app: kariko-job
 spec:
   ttlSecondsAfterFinished: 300
   template:
@@ -124,7 +130,7 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:0.0.68",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.4",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
