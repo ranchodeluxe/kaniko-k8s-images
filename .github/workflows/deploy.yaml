@@ -78,7 +78,7 @@ jobs:
           echo $BRANCHES
           echo $SECOND_STATUS
           ##########################
-          git checkout deploy
+          git checkout deploy --
           git merge main
           git push origin deploy
 
