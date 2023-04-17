@@ -8,7 +8,7 @@ metadata:
 data:
   dockerfile: |
     FROM busybox:latest
-    ENTRYPOINT ["/busybox/sh", "-ec", "sleep 1000"]
+    ENTRYPOINT ["/busybox/sh", "-ec", "sleep 3000"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
@@ -19,7 +19,7 @@ metadata:
 data:
   dockerfile: |
     FROM python:buster
-    ENTRYPOINT ["python", "-m", "http.server"]
+    ENTRYPOINT ["python", "-m", "http.server 9999"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
@@ -45,7 +45,7 @@ spec:
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/busybox-latest:0.0.34",
+             "--destination=gcorradini2023/busybox-latest:0.0.82",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
@@ -80,7 +80,7 @@ spec:
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/python-buster:0.0.92",
+             "--destination=gcorradini2023/python-buster:0.0.20",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
@@ -115,7 +115,7 @@ spec:
     image: gcr.io/kaniko-project/executor:debug
     args: [
              "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:0.0.56",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.7",
              "--dockerfile=Dockerfile"
     ]
     volumeMounts:
