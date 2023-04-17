@@ -65,8 +65,10 @@ jobs:
         run: |
           git config --global user.name 'helmdeployuser'
           git config --global user.email 'helmdeployuser@users.noreply.github.com'
+          git checkout -b deploy
+          git add -u
           git commit -am "deploy update ${{ steps.commitsha_head.output.GIT_REV_HEAD }}"
-          git push origin main
+          git push origin deploy
 
 
 
