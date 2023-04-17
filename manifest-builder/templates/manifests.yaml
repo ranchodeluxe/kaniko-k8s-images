@@ -19,35 +19,37 @@ metadata:
 spec:
   ttlSecondsAfterFinished: 86400
   template:
-    containers:
-    - name:  job-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
-      image: gcr.io/kaniko-project/executor:debug
-      args: [
-               "--context=dir://workspace",
-               {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
-               {{- $version := get $.Values.versionLookup $versionlookuppath -}}
-               {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
-               {{ $destination | nindent 13 }},
-               "--dockerfile=Dockerfile"
-      ]
-      volumeMounts:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name:  job-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+        image: gcr.io/kaniko-project/executor:debug
+        args: [
+                 "--context=dir://workspace",
+                 {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
+                 {{- $version := get $.Values.versionLookup $versionlookuppath -}}
+                 {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
+                 {{ $destination | nindent 13 }},
+                 "--dockerfile=Dockerfile"
+        ]
+        volumeMounts:
+          - name: dockerhub-regcred-secret
+            mountPath: /kaniko/.docker
+          - name: dockerfile-volume
+            mountPath: /workspace
+      volumes:
         - name: dockerhub-regcred-secret
-          mountPath: /kaniko/.docker
+          secret:
+            secretName: dockerhub-regcred
+            items:
+              - key: .dockerconfigjson
+                path: config.json
         - name: dockerfile-volume
-          mountPath: /workspace
-    volumes:
-      - name: dockerhub-regcred-secret
-        secret:
-          secretName: dockerhub-regcred
-          items:
-            - key: .dockerconfigjson
-              path: config.json
-      - name: dockerfile-volume
-        configMap:
-          name: configmap-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
-          items:
-            - key: dockerfile
-              path: Dockerfile
+          configMap:
+            name: configmap-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+            items:
+              - key: dockerfile
+                path: Dockerfile
 ---
 {{- end }}
 {{- end }}
