@@ -44,8 +44,7 @@ jobs:
           while read DOCKERFILE_PATH; do
             BASE_KEY=$(echo $DOCKERFILE_PATH | sed 's/:/-/g')
             VERSION=$(cat $DOCKERFILE_PATH | grep VERSION | cut -d'=' -f 2)
-            KEY_AND_VALUE=$(printf "%s: %s" $BASE_KEY $VERSION)
-            echo "  $KEY_AND_VALUE" >> $VALUESFILE
+            echo "  $BASE_KEY: $VERSION" >> $VALUESFILE
           done < <(echo "$DOCKERFILES")
           echo "############################################"
           cat $VALUESFILE
