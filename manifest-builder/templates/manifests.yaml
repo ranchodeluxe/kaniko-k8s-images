@@ -19,7 +19,7 @@ metadata:
   labels:
     app: kaniko-job
 spec:
-  ttlSecondsAfterFinished: 0
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: Never
