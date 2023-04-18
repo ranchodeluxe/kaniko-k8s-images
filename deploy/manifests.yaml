@@ -3,13 +3,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-busybox-latest-72721fdc74
+  name: configmap-busybox-latest-51df75f61b
   namespace: argocd
 data:
   dockerfile: |
     FROM busybox:latest
     # ARG VERSION=0.0.11
-    ENTRYPOINT ["/busybox/sh", "-ec", "sleep 5000"]
+    ENTRYPOINT ["/busybox/sh", "-ec", "sleep 1000"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
@@ -39,7 +39,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: job-busybox-latest-72721fdc74
+  name: job-busybox-latest-51df75f61b
   namespace: argocd
   labels:
     app: kaniko-job
@@ -49,7 +49,7 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-      - name:  pod-job-busybox-latest-72721fdc74
+      - name:  pod-job-busybox-latest-51df75f61b
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
@@ -70,7 +70,7 @@ spec:
                 path: config.json
         - name: dockerfile-volume
           configMap:
-            name: configmap-busybox-latest-72721fdc74
+            name: configmap-busybox-latest-51df75f61b
             items:
               - key: dockerfile
                 path: Dockerfile
