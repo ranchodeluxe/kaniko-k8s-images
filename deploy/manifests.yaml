@@ -3,40 +3,43 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-busybox-latest-10f226a7b5
+  name: configmap-busybox-latest-72721fdc74
   namespace: argocd
 data:
   dockerfile: |
     FROM busybox:latest
+    # ARG VERSION=0.0.11
     ENTRYPOINT ["/busybox/sh", "-ec", "sleep 5000"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-python-buster-4a16c7408b
+  name: configmap-python-buster-2f89b9ccd9
   namespace: argocd
 data:
   dockerfile: |
     FROM python:buster
+    # ARG VERSION=0.0.13
     ENTRYPOINT ["python", "-m", "http.server 8888"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-ubuntu-lunar-389375b53e
+  name: configmap-ubuntu-lunar-9498811c6c
   namespace: argocd
 data:
   dockerfile: |
     FROM ubuntu:lunar
+    # ARG VERSION=0.0.15
     ENTRYPOINT ["/bin/bash", "-c", "echo Hello Kaniko from Kubernetes"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: job-busybox-latest-10f226a7b5
+  name: job-busybox-latest-72721fdc74
   namespace: argocd
   labels:
     app: kaniko-job
@@ -46,11 +49,11 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-      - name:  pod-job-busybox-latest-10f226a7b5
+      - name:  pod-job-busybox-latest-72721fdc74
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/busybox-latest:0.0.35",
+             "--destination=gcorradini2023/busybox-latest:0.0.",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -67,7 +70,7 @@ spec:
                 path: config.json
         - name: dockerfile-volume
           configMap:
-            name: configmap-busybox-latest-10f226a7b5
+            name: configmap-busybox-latest-72721fdc74
             items:
               - key: dockerfile
                 path: Dockerfile
@@ -76,7 +79,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: job-python-buster-4a16c7408b
+  name: job-python-buster-2f89b9ccd9
   namespace: argocd
   labels:
     app: kaniko-job
@@ -86,11 +89,11 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-      - name:  pod-job-python-buster-4a16c7408b
+      - name:  pod-job-python-buster-2f89b9ccd9
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/python-buster:0.0.19",
+             "--destination=gcorradini2023/python-buster:0.0.",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -107,7 +110,7 @@ spec:
                 path: config.json
         - name: dockerfile-volume
           configMap:
-            name: configmap-python-buster-4a16c7408b
+            name: configmap-python-buster-2f89b9ccd9
             items:
               - key: dockerfile
                 path: Dockerfile
@@ -116,7 +119,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: job-ubuntu-lunar-389375b53e
+  name: job-ubuntu-lunar-9498811c6c
   namespace: argocd
   labels:
     app: kaniko-job
@@ -126,11 +129,11 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-      - name:  pod-job-ubuntu-lunar-389375b53e
+      - name:  pod-job-ubuntu-lunar-9498811c6c
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:0.0.17",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -147,7 +150,7 @@ spec:
                 path: config.json
         - name: dockerfile-volume
           configMap:
-            name: configmap-ubuntu-lunar-389375b53e
+            name: configmap-ubuntu-lunar-9498811c6c
             items:
               - key: dockerfile
                 path: Dockerfile
