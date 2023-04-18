@@ -44,7 +44,7 @@ jobs:
           while read DOCKERFILE_PATH; do
             BASE_KEY=$(echo $DOCKERFILE_PATH | sed 's/:/-/g')
             VERSION=$(cat ./manifest-builder/$DOCKERFILE_PATH | grep VERSION | cut -d'=' -f 2)
-            printf "  $BASE_KEY: $VERSION" >> $VALUESFILE
+            printf "  $BASE_KEY: $VERSION\n" >> $VALUESFILE
           done < <(echo "$DOCKERFILES")
           echo "############################################"
           cat $VALUESFILE
