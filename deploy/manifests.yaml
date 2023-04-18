@@ -44,7 +44,7 @@ metadata:
   labels:
     app: kaniko-job
 spec:
-  ttlSecondsAfterFinished: 0
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: Never
@@ -53,7 +53,7 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/busybox-latest:0.0.",
+             "--destination=gcorradini2023/busybox-latest:",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -84,7 +84,7 @@ metadata:
   labels:
     app: kaniko-job
 spec:
-  ttlSecondsAfterFinished: 0
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: Never
@@ -93,7 +93,7 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/python-buster:0.0.",
+             "--destination=gcorradini2023/python-buster:",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
@@ -124,7 +124,7 @@ metadata:
   labels:
     app: kaniko-job
 spec:
-  ttlSecondsAfterFinished: 0
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: Never
@@ -133,7 +133,7 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-             "--destination=gcorradini2023/ubuntu-lunar:0.0.",
+             "--destination=gcorradini2023/ubuntu-lunar:",
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:
