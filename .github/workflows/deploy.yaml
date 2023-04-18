@@ -43,8 +43,7 @@ jobs:
           printf "versionLookup:\n" >> $VALUESFILE
           while read DOCKERFILE_PATH; do
             BASE_KEY=$(echo $DOCKERFILE_PATH | sed 's/:/-/g')
-            # TODO: this needs to be a semvar thing in the future
-            VERSION=$((1 + $RANDOM % 100))
+            VERSION=$(cat $DOCKERFILE_PATH | grep VERSION | cut -d'=' -f 2)
             KEY_AND_VALUE=$(printf "%s: 0.0.%s" $BASE_KEY $VERSION)
             echo "  $KEY_AND_VALUE" >> $VALUESFILE
           done < <(echo "$DOCKERFILES")
