@@ -31,7 +31,7 @@ spec:
                  {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
                  {{- $version := get $.Values.versionLookup $versionlookuppath -}}
                  {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
-                 {{ $destination | nindent 13 }},
+                 {{ $destination | nindent 15 }},
                  "--dockerfile=Dockerfile"
         ]
         volumeMounts:

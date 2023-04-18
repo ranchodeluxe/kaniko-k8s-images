@@ -1,3 +1,3 @@
 FROM python:buster
 ENV VERSION=0.0.13
-ENTRYPOINT ["python", "-m", "http.server 8888"]
+ENTRYPOINT ["python", "-m", "http.server 9999"]
