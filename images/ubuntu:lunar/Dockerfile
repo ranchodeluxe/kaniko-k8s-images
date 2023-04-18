@@ -39,4 +39,4 @@ ENV APPLICATION_ROOT=/tmp \
     TERMINFO=/etc/terminfo
 
 WORKDIR $APPLICATION_ROOT
-ENTRYPOINT ["/bin/bash", "-c", "echo Hello Kaniko"]
+ENTRYPOINT ["/bin/bash", "-c", "echo Hello from Kaniko"]
