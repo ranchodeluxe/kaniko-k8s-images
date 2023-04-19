@@ -7,7 +7,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-
+  name: configmap-{{ $basename_sha_suffix }}
   namespace: argocd
 data:
   dockerfile: |
@@ -16,7 +16,7 @@ data:
 apiVersion: v1
 kind: Deployment
 metadata:
-  name: job-{{ $basename_sha_suffix }}
+  name: deployment-{{ $basename_sha_suffix }}
   namespace: argocd
   labels:
     app: kaniko-deployment-{{ $basename_sha_suffix }}
