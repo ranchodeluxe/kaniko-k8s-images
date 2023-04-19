@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-busybox-latest-8a65dd483c
+  name: configmap-
   namespace: argocd
 data:
   dockerfile: |
@@ -15,7 +15,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-python-buster-ac80d1c7c5
+  name: configmap-
   namespace: argocd
 data:
   dockerfile: |
@@ -27,7 +27,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-ubuntu-lunar-f833fb321d
+  name: configmap-
   namespace: argocd
 data:
   dockerfile: |
@@ -75,31 +75,46 @@ data:
     ENTRYPOINT ["/bin/bash", "-c", "echo Hello from Kaniko"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Deployment
 metadata:
   name: job-busybox-latest-8a65dd483c
   namespace: argocd
   labels:
-    app: kaniko-job
+    app: kaniko-deployment-busybox-latest-8a65dd483c
 spec:
-  ttlSecondsAfterFinished: 300
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kaniko-deployment-busybox-latest-8a65dd483c
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
   template:
+    metadata:
+      labels:
+        app: kaniko-deployment-busybox-latest-8a65dd483c
+       # uncomment for TTL self termination
+#      annotations:
+#        "kubectl.kubernetes.io/deployment-revision": "8a65dd483c"
+#        "ttl": "432000s" # five days
     spec:
       restartPolicy: Never
       containers:
-      - name:  pod-job-busybox-latest-8a65dd483c
+      - name:  pod-deploy-busybox-latest-8a65dd483c
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-               "--destination=gcorradini2023/busybox-latest:0.0.11",
-                 "--dockerfile=Dockerfile"
+                 "--destination=gcorradini2023/busybox-latest:0.0.11",
+                 "--dockerfile=./workspace/Dockerfile"
         ]
         volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
-            mountPath: /workspace
+            mountPath: /workspace/workspace
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -115,31 +130,46 @@ spec:
                 path: Dockerfile
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Deployment
 metadata:
   name: job-python-buster-ac80d1c7c5
   namespace: argocd
   labels:
-    app: kaniko-job
+    app: kaniko-deployment-python-buster-ac80d1c7c5
 spec:
-  ttlSecondsAfterFinished: 300
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kaniko-deployment-python-buster-ac80d1c7c5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
   template:
+    metadata:
+      labels:
+        app: kaniko-deployment-python-buster-ac80d1c7c5
+       # uncomment for TTL self termination
+#      annotations:
+#        "kubectl.kubernetes.io/deployment-revision": "ac80d1c7c5"
+#        "ttl": "432000s" # five days
     spec:
       restartPolicy: Never
       containers:
-      - name:  pod-job-python-buster-ac80d1c7c5
+      - name:  pod-deploy-python-buster-ac80d1c7c5
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-               "--destination=gcorradini2023/python-buster:0.0.13",
-                 "--dockerfile=Dockerfile"
+                 "--destination=gcorradini2023/python-buster:0.0.13",
+                 "--dockerfile=./workspace/Dockerfile"
         ]
         volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
-            mountPath: /workspace
+            mountPath: /workspace/workspace
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -155,31 +185,46 @@ spec:
                 path: Dockerfile
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Deployment
 metadata:
   name: job-ubuntu-lunar-f833fb321d
   namespace: argocd
   labels:
-    app: kaniko-job
+    app: kaniko-deployment-ubuntu-lunar-f833fb321d
 spec:
-  ttlSecondsAfterFinished: 300
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kaniko-deployment-ubuntu-lunar-f833fb321d
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
   template:
+    metadata:
+      labels:
+        app: kaniko-deployment-ubuntu-lunar-f833fb321d
+       # uncomment for TTL self termination
+#      annotations:
+#        "kubectl.kubernetes.io/deployment-revision": "f833fb321d"
+#        "ttl": "432000s" # five days
     spec:
       restartPolicy: Never
       containers:
-      - name:  pod-job-ubuntu-lunar-f833fb321d
+      - name:  pod-deploy-ubuntu-lunar-f833fb321d
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-               "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
-                 "--dockerfile=Dockerfile"
+                 "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
+                 "--dockerfile=./workspace/Dockerfile"
         ]
         volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
-            mountPath: /workspace
+            mountPath: /workspace/workspace
       volumes:
         - name: dockerhub-regcred-secret
           secret:
