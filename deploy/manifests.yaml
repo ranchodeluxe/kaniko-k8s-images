@@ -1,5 +1,11 @@
 ---
 # Source: manifest-builder/templates/manifests.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kaniko-get-list-pod-serviceaccount
+  namespace: argocd
+automountServiceAccountToken: true
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
