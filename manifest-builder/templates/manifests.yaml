@@ -1,3 +1,21 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubectl-configmap
+  namespace: argocd
+data:
+  kubectl: |
+    #!/bin/sh
+    set -euo pipefail
+
+    # Install kubectl
+    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+    chmod +x kubectl
+
+    # Run kubectl command
+    ./kubectl "$@"
+---
 {{- range $filepath, $_ := .Files.Glob "dockerfile_inputs/**" -}}
 {{- if (hasSuffix "Dockerfile" $filepath) }}
 {{- $dockersha256 := (sha256sum ($.Files.Get $filepath)) }}
@@ -13,49 +31,44 @@ data:
   dockerfile: |
   {{- $.Files.Get $filepath | nindent 4 }}
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: deployment-{{ $basename_sha_suffix }}
+  name: job-{{ $basename_sha_suffix }}
   namespace: argocd
   labels:
-    app: kaniko-deployment-{{ $basename_sha_suffix }}
+    app: kaniko-job
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: kaniko-deployment-{{ $basename_sha_suffix }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 50%
-      maxUnavailable: 0
+# ttlSecondsAfterFinished: 300
   template:
-    metadata:
-      labels:
-        app: kaniko-deployment-{{ $basename_sha_suffix }}
-       # uncomment for TTL self termination
-#      annotations:
-#        "kubectl.kubernetes.io/deployment-revision": "{{ $sha_suffix }}"
-#        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Always
+      restartPolicy: Never
+      # next two lines bind service account to Pod
+      serviceAccountName: kaniko-get-list-pod-serviceaccount
+      automountServiceAccountToken: true
       containers:
-      - name:  pod-deploy-{{ $basename_sha_suffix }}
+      - name:  pod-job-{{ $basename_sha_suffix }}
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
                  {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
                  {{- $version := get $.Values.versionLookup $versionlookuppath -}}
                  {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
-                 {{ $destination | nindent 17 }},
-                 "--dockerfile=./workspace/Dockerfile"
+                 {{ $destination | nindent 15 }},
+                 "--dockerfile=Dockerfile"
         ]
-        volumeMounts:
+        lifecycle:
+          postStart:
+            exec:
+              #command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+          volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
-            mountPath: /workspace/workspace
+            mountPath: /workspace
+          - name: kubectl-configmap
+            mountPath: /usr/local/bin/kubectl
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -69,6 +82,40 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
+        - name: kubectl-configmap
+          configMap:
+              name: kubectl-configmap
 ---
 {{- end }}
 {{- end }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kaniko-get-list-pod-serviceaccount
+  namespace: argocd
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kaniko-pod-reader-role
+  namespace: argocd
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kaniko-pod-reader-role-binding
+  namespace: argocd
+subjects:
+- kind: ServiceAccount
+  name: kaniko-get-list-pod-serviceaccount
+  namespace: argocd
+roleRef:
+  kind: Role
+  name: kaniko-pod-reader-role
+  apiGroup: rbac.authorization.k8s.io

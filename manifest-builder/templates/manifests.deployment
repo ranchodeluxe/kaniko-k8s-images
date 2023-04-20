@@ -2,43 +2,60 @@
 {{- if (hasSuffix "Dockerfile" $filepath) }}
 {{- $dockersha256 := (sha256sum ($.Files.Get $filepath)) }}
 {{- $basename := ($filepath | regexFind "[a-zA-Z0-9.-]*:[a-zA-Z0-9.-]*" | replace ":" "-" ) }}
+{{- $sha_suffix := substr 0 10 $dockersha256 }}
+{{- $basename_sha_suffix := printf "%s-%s" $basename $sha_suffix }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+  name: configmap-{{ $basename_sha_suffix }}
   namespace: argocd
 data:
   dockerfile: |
   {{- $.Files.Get $filepath | nindent 4 }}
 ---
-apiVersion: batch/v1
-kind: Job
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: job-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+  name: deployment-{{ $basename_sha_suffix }}
   namespace: argocd
   labels:
-    app: kaniko-job
+    app: kaniko-deployment-{{ $basename_sha_suffix }}
 spec:
-  ttlSecondsAfterFinished: 300
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kaniko-deployment-{{ $basename_sha_suffix }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
   template:
+    metadata:
+      labels:
+        app: kaniko-deployment-{{ $basename_sha_suffix }}
+       # uncomment for TTL self termination
+#      annotations:
+#        "kubectl.kubernetes.io/deployment-revision": "{{ $sha_suffix }}"
+#        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Never
+      restartPolicy: Always
       containers:
-      - name:  pod-job-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+      - name:  pod-deploy-{{ $basename_sha_suffix }}
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
                  {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
                  {{- $version := get $.Values.versionLookup $versionlookuppath -}}
                  {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
-                 {{ $destination | nindent 15 }},
-                 "--dockerfile=Dockerfile"
+                 {{ $destination | nindent 17 }},
+                 "--dockerfile=./workspace/Dockerfile"
         ]
         volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
-            mountPath: /workspace
+            mountPath: /workspace/workspace
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -48,10 +65,11 @@ spec:
                 path: config.json
         - name: dockerfile-volume
           configMap:
-            name: configmap-{{ $basename }}-{{ substr 0 10 $dockersha256 }}
+            name: configmap-{{ $basename_sha_suffix }}
             items:
               - key: dockerfile
                 path: Dockerfile
 ---
 {{- end }}
 {{- end }}
+

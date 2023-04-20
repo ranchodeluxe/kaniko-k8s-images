@@ -29,13 +29,19 @@
                      \______/                                                                                                        
 ```
 
+### Goal
+
 Docker CI image-building pipeline in K8s via `argocd` and `kaniko`. 
 Now we have our Docker images && caches as close to the k8s cluster as possible
 
-### general workflow
+### Workflow
 
-* CI (Github Actions) runs a `helm` templating pipeline on `main` 
-* `helm` writes a `./deploy/manifest.yaml` on the `main` plumbing through the Dockerfile sha256 to each resource to identify changes
-* ArgoCD is monitoring that branch and that folder for changes (either manually, polling or eventually through webhooks)
-* ArgoCD syncs the application and kicks of the `kind: Pod` definitions
-* `kind: Pod` are essentially containerized jobs that leverage `kaniko` and build images. They also push to Dockerhub (eventually to a private Docker repository on K8s)
+* folks create PRs to add new images to `./images`
+* Github Actions CI runs a `helm` templating pipeline on `main` which dumps k8s manifests to `./deploy/manifest.yaml`. 
+It also plumbs through the Dockerfile sha256 to each resource to help identify changes
+* ArgoCD is monitoring that branch and that folder for changes (either via polling, manually or eventually through webhooks)
+* ArgoCD syncs the application resources, one of which is the `kind: Job` resource
+* `kind: Job` is k8s resource that has a duty to spin up at most one `kind: Pod`. This is essentially the containerized jobs that leverages `kaniko` and builds images. 
+`kaniko` also handles pushing the new image to Dockerhub (eventually to a private Docker repository on K8s). 
+* Using `kind: Job` means that even if the same job/pod is around with the same sha256 naming pattern it will be rerun. This is not what we want
+* We use a `lifecycle` > `postStart` hook to get the previous run information and decide whether to `exit` gracefully
