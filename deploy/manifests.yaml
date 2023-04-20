@@ -1,5 +1,25 @@
 ---
 # Source: manifest-builder/templates/manifests.yaml
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubectl-configmap
+  namespace: argocd
+data:
+  kubectl: |
+    #!/bin/sh
+    set -euo pipefail
+
+    # Install kubectl
+    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+    chmod +x kubectl
+
+    # Run kubectl command
+    ./kubectl "$@"
+---
+# Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -75,46 +95,67 @@ data:
     ENTRYPOINT ["/bin/bash", "-c", "echo Hello from Kaniko"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
-  name: deployment-busybox-latest-8a65dd483c
+  name: kaniko-pod-reader-role
+  namespace: argocd
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list"]
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kaniko-pod-reader-role-binding
+  namespace: argocd
+subjects:
+- kind: ServiceAccount
+  name: kaniko-get-list-pod-serviceaccount
+  namespace: argocd
+roleRef:
+  kind: Role
+  name: kaniko-pod-reader-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-busybox-latest-8a65dd483c
   namespace: argocd
   labels:
-    app: kaniko-deployment-busybox-latest-8a65dd483c
+    app: kaniko-job
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: kaniko-deployment-busybox-latest-8a65dd483c
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 50%
-      maxUnavailable: 0
+# ttlSecondsAfterFinished: 300
   template:
-    metadata:
-      labels:
-        app: kaniko-deployment-busybox-latest-8a65dd483c
-       # uncomment for TTL self termination
-#      annotations:
-#        "kubectl.kubernetes.io/deployment-revision": "8a65dd483c"
-#        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Always
+      restartPolicy: Never
+      # next two lines bind service account to Pod
+      serviceAccountName: kaniko-get-list-pod-serviceaccount
+      automountServiceAccountToken: true
       containers:
-      - name:  pod-deploy-busybox-latest-8a65dd483c
+      - name:  pod-job-busybox-latest-8a65dd483c
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-                 "--destination=gcorradini2023/busybox-latest:0.0.11",
-                 "--dockerfile=./workspace/Dockerfile"
+               "--destination=gcorradini2023/busybox-latest:0.0.11",
+                 "--dockerfile=Dockerfile"
         ]
-        volumeMounts:
+        lifecycle:
+          postStart:
+            exec:
+              #command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+          volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
-            mountPath: /workspace/workspace
+            mountPath: /workspace
+          - name: kubectl-configmap
+            mountPath: /usr/local/bin/kubectl
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -128,48 +169,46 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
+        - name: kubectl-configmap
+          configMap:
+              name: kubectl-configmap
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: deployment-python-buster-ac80d1c7c5
+  name: job-python-buster-ac80d1c7c5
   namespace: argocd
   labels:
-    app: kaniko-deployment-python-buster-ac80d1c7c5
+    app: kaniko-job
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: kaniko-deployment-python-buster-ac80d1c7c5
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 50%
-      maxUnavailable: 0
+# ttlSecondsAfterFinished: 300
   template:
-    metadata:
-      labels:
-        app: kaniko-deployment-python-buster-ac80d1c7c5
-       # uncomment for TTL self termination
-#      annotations:
-#        "kubectl.kubernetes.io/deployment-revision": "ac80d1c7c5"
-#        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Always
+      restartPolicy: Never
+      # next two lines bind service account to Pod
+      serviceAccountName: kaniko-get-list-pod-serviceaccount
+      automountServiceAccountToken: true
       containers:
-      - name:  pod-deploy-python-buster-ac80d1c7c5
+      - name:  pod-job-python-buster-ac80d1c7c5
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-                 "--destination=gcorradini2023/python-buster:0.0.13",
-                 "--dockerfile=./workspace/Dockerfile"
+               "--destination=gcorradini2023/python-buster:0.0.13",
+                 "--dockerfile=Dockerfile"
         ]
-        volumeMounts:
+        lifecycle:
+          postStart:
+            exec:
+              #command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+          volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
-            mountPath: /workspace/workspace
+            mountPath: /workspace
+          - name: kubectl-configmap
+            mountPath: /usr/local/bin/kubectl
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -183,48 +222,46 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
+        - name: kubectl-configmap
+          configMap:
+              name: kubectl-configmap
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: deployment-ubuntu-lunar-f833fb321d
+  name: job-ubuntu-lunar-f833fb321d
   namespace: argocd
   labels:
-    app: kaniko-deployment-ubuntu-lunar-f833fb321d
+    app: kaniko-job
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: kaniko-deployment-ubuntu-lunar-f833fb321d
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 50%
-      maxUnavailable: 0
+# ttlSecondsAfterFinished: 300
   template:
-    metadata:
-      labels:
-        app: kaniko-deployment-ubuntu-lunar-f833fb321d
-       # uncomment for TTL self termination
-#      annotations:
-#        "kubectl.kubernetes.io/deployment-revision": "f833fb321d"
-#        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Always
+      restartPolicy: Never
+      # next two lines bind service account to Pod
+      serviceAccountName: kaniko-get-list-pod-serviceaccount
+      automountServiceAccountToken: true
       containers:
-      - name:  pod-deploy-ubuntu-lunar-f833fb321d
+      - name:  pod-job-ubuntu-lunar-f833fb321d
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-                 "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
-                 "--dockerfile=./workspace/Dockerfile"
+               "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
+                 "--dockerfile=Dockerfile"
         ]
-        volumeMounts:
+        lifecycle:
+          postStart:
+            exec:
+              #command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+          volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
-            mountPath: /workspace/workspace
+            mountPath: /workspace
+          - name: kubectl-configmap
+            mountPath: /usr/local/bin/kubectl
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -238,3 +275,6 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
+        - name: kubectl-configmap
+          configMap:
+              name: kubectl-configmap
