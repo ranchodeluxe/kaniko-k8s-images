@@ -39,7 +39,7 @@ spec:
 #        "kubectl.kubernetes.io/deployment-revision": "{{ $sha_suffix }}"
 #        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Never
+      restartPolicy: Always
       containers:
       - name:  pod-deploy-{{ $basename_sha_suffix }}
         image: gcr.io/kaniko-project/executor:debug
