@@ -75,7 +75,7 @@ data:
     ENTRYPOINT ["/bin/bash", "-c", "echo Hello from Kaniko"]
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deployment-busybox-latest-8a65dd483c
@@ -130,7 +130,7 @@ spec:
                 path: Dockerfile
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deployment-python-buster-ac80d1c7c5
@@ -185,7 +185,7 @@ spec:
                 path: Dockerfile
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deployment-ubuntu-lunar-f833fb321d
