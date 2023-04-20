@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-
+  name: configmap-busybox-latest-8a65dd483c
   namespace: argocd
 data:
   dockerfile: |
@@ -15,7 +15,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-
+  name: configmap-python-buster-ac80d1c7c5
   namespace: argocd
 data:
   dockerfile: |
@@ -27,7 +27,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-
+  name: configmap-ubuntu-lunar-f833fb321d
   namespace: argocd
 data:
   dockerfile: |
@@ -78,7 +78,7 @@ data:
 apiVersion: v1
 kind: Deployment
 metadata:
-  name: job-busybox-latest-8a65dd483c
+  name: deployment-busybox-latest-8a65dd483c
   namespace: argocd
   labels:
     app: kaniko-deployment-busybox-latest-8a65dd483c
@@ -133,7 +133,7 @@ spec:
 apiVersion: v1
 kind: Deployment
 metadata:
-  name: job-python-buster-ac80d1c7c5
+  name: deployment-python-buster-ac80d1c7c5
   namespace: argocd
   labels:
     app: kaniko-deployment-python-buster-ac80d1c7c5
@@ -188,7 +188,7 @@ spec:
 apiVersion: v1
 kind: Deployment
 metadata:
-  name: job-ubuntu-lunar-f833fb321d
+  name: deployment-ubuntu-lunar-f833fb321d
   namespace: argocd
   labels:
     app: kaniko-deployment-ubuntu-lunar-f833fb321d
