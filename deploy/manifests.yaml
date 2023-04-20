@@ -101,7 +101,7 @@ spec:
 #        "kubectl.kubernetes.io/deployment-revision": "8a65dd483c"
 #        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Never
+      restartPolicy: Always
       containers:
       - name:  pod-deploy-busybox-latest-8a65dd483c
         image: gcr.io/kaniko-project/executor:debug
@@ -156,7 +156,7 @@ spec:
 #        "kubectl.kubernetes.io/deployment-revision": "ac80d1c7c5"
 #        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Never
+      restartPolicy: Always
       containers:
       - name:  pod-deploy-python-buster-ac80d1c7c5
         image: gcr.io/kaniko-project/executor:debug
@@ -211,7 +211,7 @@ spec:
 #        "kubectl.kubernetes.io/deployment-revision": "f833fb321d"
 #        "ttl": "432000s" # five days
     spec:
-      restartPolicy: Never
+      restartPolicy: Always
       containers:
       - name:  pod-deploy-ubuntu-lunar-f833fb321d
         image: gcr.io/kaniko-project/executor:debug
