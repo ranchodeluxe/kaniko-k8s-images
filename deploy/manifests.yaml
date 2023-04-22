@@ -200,6 +200,10 @@ spec:
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "kubectl-install-script.sh && if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -213,6 +217,13 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
+        - name: kubectl-installation-debian
+          configMap:
+            name: kubectl-installation-debian
+            items:
+              - key: kubectl-install-script
+                path: kubectl-install-script.sh
+                mode: 0777
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: batch/v1
@@ -245,6 +256,10 @@ spec:
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "kubectl-install-script.sh && if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -258,3 +273,10 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
+        - name: kubectl-installation-debian
+          configMap:
+            name: kubectl-installation-debian
+            items:
+              - key: kubectl-install-script
+                path: kubectl-install-script.sh
+                mode: 0777
