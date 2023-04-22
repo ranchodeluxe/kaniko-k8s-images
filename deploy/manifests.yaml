@@ -11,7 +11,7 @@ automountServiceAccountToken: true
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kubectl-installation
+  name: kubectl-installation-debian
   namespace: argocd
 data:
   kubectl-install-script: |
@@ -19,7 +19,7 @@ data:
     #set -euo pipefail
 
     apt update \
-     && apt install ca-certificates \
+     && apt -y install ca-certificates curl \
      && curl -Lk "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl" --output /usr/local/sbin/kubectl \
      && chmod 777 /usr/local/sbin/kubectl
 ---
@@ -155,10 +155,6 @@ spec:
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -172,13 +168,6 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
-        - name: kubectl-installation
-          configMap:
-            name: kubectl-installation
-            items:
-              - key: kubectl-install-script
-                path: kubectl-install-script.sh
-                mode: 0777
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: batch/v1
@@ -211,10 +200,6 @@ spec:
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -228,13 +213,6 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
-        - name: kubectl-installation
-          configMap:
-            name: kubectl-installation
-            items:
-              - key: kubectl-install-script
-                path: kubectl-install-script.sh
-                mode: 0777
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: batch/v1
@@ -267,10 +245,6 @@ spec:
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -284,10 +258,3 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
-        - name: kubectl-installation
-          configMap:
-            name: kubectl-installation
-            items:
-              - key: kubectl-install-script
-                path: kubectl-install-script.sh
-                mode: 0777
