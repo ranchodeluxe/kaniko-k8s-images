@@ -59,7 +59,7 @@ spec:
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
-          - name: kubectl-installation
+          - name: kubectl-installation-debian
             mountPath: /usr/local/bin/
         {{- if or (contains "ubuntu" $basename) (contains "python" $basename) }}
         lifecycle:
