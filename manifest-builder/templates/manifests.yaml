@@ -9,11 +9,9 @@ data:
     #set -euo pipefail
 
     apt update \
-        && apt install ca-certificates
-
-    # install kubectl
-    curl -Lk "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl" --output /usr/local/sbin/kubectl
-    chmod 777 /usr/local/sbin/kubectl
+     && apt install ca-certificates \
+     && curl -Lk "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl" --output /usr/local/sbin/kubectl \
+     && chmod 777 /usr/local/sbin/kubectl
 ---
 {{- range $filepath, $_ := .Files.Glob "dockerfile_inputs/**" -}}
 {{- if (hasSuffix "Dockerfile" $filepath) }}
@@ -53,20 +51,20 @@ spec:
                  {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
                  {{- $version := get $.Values.versionLookup $versionlookuppath -}}
                  {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
-                 {{ $destination | nindent 15 }},
+                 {{ $destination | nindent 17 }},
                  "--dockerfile=Dockerfile"
         ]
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
-          volumeMounts:
+        volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
