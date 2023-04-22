@@ -1,19 +1,19 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kubectl-configmap
+  name: kubectl-installation
   namespace: argocd
 data:
-  kubectl: |
+  kubectl-install-script: |
     #!/bin/sh
-    set -euo pipefail
+    #set -euo pipefail
 
-    # Install kubectl
-    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-    chmod +x kubectl
+    apt update \
+        && apt install ca-certificates
 
-    # Run kubectl command
-    ./kubectl "$@"
+    # install kubectl
+    curl -Lk "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl" --output /usr/local/sbin/kubectl
+    chmod 777 /usr/local/sbin/kubectl
 ---
 {{- range $filepath, $_ := .Files.Glob "dockerfile_inputs/**" -}}
 {{- if (hasSuffix "Dockerfile" $filepath) }}
@@ -59,15 +59,14 @@ spec:
         lifecycle:
           postStart:
             exec:
-              #command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
-              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' my-deployment) = Completed ]; then exit 0; else exit 1; fi" ]
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
           volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
-          - name: kubectl-configmap
-            mountPath: /usr/local/bin/kubectl
+          - name: kubectl-installation
+            mountPath: /usr/local/bin/
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -81,9 +80,13 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
-        - name: kubectl-configmap
+        - name: kubectl-installation
           configMap:
-              name: kubectl-configmap
+            name: kubectl-installation
+            items:
+              - key: kubectl-install-script
+                path: kubectl-install-script.sh
+                mode: 0777
 ---
 {{- end }}
 {{- end }}
