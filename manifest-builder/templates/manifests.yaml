@@ -61,7 +61,7 @@ spec:
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
-        {{- if and (contains "ubuntu" $basename) (contains "python" $basename) }}
+        {{- if or (contains "ubuntu" $basename) (contains "python" $basename) }}
         lifecycle:
           postStart:
             exec:
@@ -80,7 +80,7 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
-        {{- if and (contains "ubuntu" $basename) (contains "python" $basename) }}
+        {{- if or (contains "ubuntu" $basename) (contains "python" $basename) }}
         - name: kubectl-installation-debian
           configMap:
             name: kubectl-installation-debian
