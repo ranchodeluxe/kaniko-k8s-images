@@ -19,11 +19,9 @@ data:
     #set -euo pipefail
 
     apt update \
-        && apt install ca-certificates
-
-    # install kubectl
-    curl -Lk "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl" --output /usr/local/sbin/kubectl
-    chmod 777 /usr/local/sbin/kubectl
+     && apt install ca-certificates \
+     && curl -Lk "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl" --output /usr/local/sbin/kubectl \
+     && chmod 777 /usr/local/sbin/kubectl
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
@@ -147,20 +145,20 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-               "--destination=gcorradini2023/busybox-latest:0.0.11",
+                 "--destination=gcorradini2023/busybox-latest:0.0.11",
                  "--dockerfile=Dockerfile"
         ]
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
-          volumeMounts:
+        volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -203,20 +201,20 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-               "--destination=gcorradini2023/python-buster:0.0.13",
+                 "--destination=gcorradini2023/python-buster:0.0.13",
                  "--dockerfile=Dockerfile"
         ]
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
-          volumeMounts:
+        volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -259,20 +257,20 @@ spec:
         image: gcr.io/kaniko-project/executor:debug
         args: [
                  "--context=dir://workspace",
-               "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
+                 "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
                  "--dockerfile=Dockerfile"
         ]
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
-          volumeMounts:
+        volumeMounts:
           - name: dockerhub-regcred-secret
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
           - name: kubectl-installation
             mountPath: /usr/local/bin/
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
