@@ -4,14 +4,12 @@ metadata:
   name: kubectl-installation-busybox
   namespace: argocd
 data:
-  install-cmd: |
+  terminate-cmd: |
     #!/bin/sh
     /busybox/wget --no-check-certificate \
         -O /busybox/kubectl "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl"
     chmod 777 /busybox/kubectl
-  terminate-cmd: |
-    #!/bin/sh
-    query=$(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME);
+    query=$(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME)
     if [ "$query" = "Completed" ];
     then
        printf "[ GRACEFUL EXIT ]: status already completed\n"
@@ -72,7 +70,7 @@ spec:
         lifecycle:
           postStart:
             exec:
-              command: [ "/bin/sh", "-c", "kubectl-install-script.sh; kubectl-exit-query.sh;" ]
+              command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -90,11 +88,8 @@ spec:
           configMap:
             name: kubectl-installation-busybox
             items:
-              - key: install-cmd
-                path: kubectl-install-script.sh
-                mode: 0777
               - key:  terminate-cmd
-                path: kubectl-exit-query.sh
+                path: kubectl-install-check-status-query.sh
                 mode: 0777
 ---
 {{- end }}
