@@ -12,10 +12,32 @@ data:
     query=$(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME)
     if [ "$query" = "Completed" ];
     then
-       printf "[ GRACEFUL EXIT ]: status already 'Completed', exiting...\n"
-       exit 0
+    kubectl apply -f - <<EOF
+    apiVersion: v1
+    kind: Event
+    metadata:
+      name: early-termination
+      namespace: argocd
+    type: Normal
+    message: '[ TERMINATION QUERY ]: status already \'Completed\', exiting...'
+    involvedObject:
+      kind: Pod
+    EOF
+    # container status of `exit 0` should translate to `-o jsonpath='{.status.phase}' = "Succeedeed"`
+    exit 0
     else
-       printf "[ QUERY ]: status not 'Completed', continuing on...\n"
+    kubectl apply -f - <<EOF
+    apiVersion: v1
+    kind: Event
+    metadata:
+      name: early-termination
+      namespace: argocd
+    type: Normal
+    message: '[ TERMINATION QUERY ]: status not \'Completed\', continuing onto next step...'
+    involvedObject:
+      kind: Pod
+    EOF
+    # don't use an exit status so it moves onto the next step
     fi
 ---
 {{- range $filepath, $_ := .Files.Glob "dockerfile_inputs/**" -}}
