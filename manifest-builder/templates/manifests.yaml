@@ -12,11 +12,10 @@ data:
     query=$(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME)
     if [ "$query" = "Completed" ];
     then
-       printf "[ GRACEFUL EXIT ]: status already completed\n"
+       printf "[ GRACEFUL EXIT ]: status already 'Completed', exiting...\n"
        exit 0
     else
-       printf "[ EXITING ]: status not completed\n"
-       exit 1
+       printf "[ QUERY ]: status not 'Completed', continuing on...\n"
     fi
 ---
 {{- range $filepath, $_ := .Files.Glob "dockerfile_inputs/**" -}}
@@ -37,7 +36,7 @@ data:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-{{ $basename_sha_suffix }}
+  name: pod-job-{{ $basename_sha_suffix }}
   namespace: argocd
   labels:
     app: kaniko-containerized-job
