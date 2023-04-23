@@ -57,6 +57,15 @@ spec:
              {{ $destination | nindent 13 }},
              "--dockerfile=Dockerfile"
     ]
+    {{- if contains "ubuntu" $basename }}
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "300m"
+      limits:
+        memory: "768Mi"
+        cpu: "500m"
+    {{- end }}
     volumeMounts:
       - name: dockerhub-regcred-secret
         mountPath: /kaniko/.docker
