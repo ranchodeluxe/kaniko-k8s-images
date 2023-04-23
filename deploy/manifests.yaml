@@ -11,17 +11,25 @@ automountServiceAccountToken: true
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kubectl-installation-debian
+  name: kubectl-installation-busybox
   namespace: argocd
 data:
-  kubectl-install-script: |
+  install-cmd: |
     #!/bin/sh
-    #set -euo pipefail
-
-    apt update \
-     && apt -y install ca-certificates curl \
-     && curl -Lk "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl" --output /usr/local/sbin/kubectl \
-     && chmod 777 /usr/local/sbin/kubectl
+    /busybox/wget --no-check-certificate \
+        -O /busybox/kubectl "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl"
+    chmod 777 /busybox/kubectl
+  terminate-cmd: |
+    #!/bin/sh
+    query=$(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME);
+    if [ "$query" = "Completed" ];
+    then
+       printf "[ GRACEFUL EXIT ]: status already completed\n"
+       exit 0
+    else
+       printf "[ EXITING ]: status not completed\n"
+       exit 1
+    fi
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: v1
@@ -153,6 +161,12 @@ spec:
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
+          - name: kubectl-installation-busybox
+            mountPath: /usr/local/bin/
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "kubectl-install-script.sh; kubectl-exit-query.sh;" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -166,6 +180,16 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
+        - name: kubectl-installation-busybox
+          configMap:
+            name: kubectl-installation-busybox
+            items:
+              - key: install-cmd
+                path: kubectl-install-script.sh
+                mode: 0777
+              - key:  terminate-cmd
+                path: kubectl-exit-query.sh
+                mode: 0777
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: batch/v1
@@ -196,6 +220,12 @@ spec:
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
+          - name: kubectl-installation-busybox
+            mountPath: /usr/local/bin/
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "kubectl-install-script.sh; kubectl-exit-query.sh;" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -209,6 +239,16 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
+        - name: kubectl-installation-busybox
+          configMap:
+            name: kubectl-installation-busybox
+            items:
+              - key: install-cmd
+                path: kubectl-install-script.sh
+                mode: 0777
+              - key:  terminate-cmd
+                path: kubectl-exit-query.sh
+                mode: 0777
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: batch/v1
@@ -239,12 +279,12 @@ spec:
             mountPath: /kaniko/.docker
           - name: dockerfile-volume
             mountPath: /workspace
-          - name: kubectl-installation-debian
+          - name: kubectl-installation-busybox
             mountPath: /usr/local/bin/
         lifecycle:
           postStart:
             exec:
-              command: [ "/bin/sh", "-c", "kubectl-install-script.sh && if [ $(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME) = Completed ]; then exit 0; else exit 1; fi" ]
+              command: [ "/bin/sh", "-c", "kubectl-install-script.sh; kubectl-exit-query.sh;" ]
       volumes:
         - name: dockerhub-regcred-secret
           secret:
@@ -258,10 +298,13 @@ spec:
             items:
               - key: dockerfile
                 path: Dockerfile
-        - name: kubectl-installation-debian
+        - name: kubectl-installation-busybox
           configMap:
-            name: kubectl-installation-debian
+            name: kubectl-installation-busybox
             items:
-              - key: kubectl-install-script
+              - key: install-cmd
                 path: kubectl-install-script.sh
+                mode: 0777
+              - key:  terminate-cmd
+                path: kubectl-exit-query.sh
                 mode: 0777
