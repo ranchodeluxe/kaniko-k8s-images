@@ -131,169 +131,160 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Pod
 metadata:
-  name: job-busybox-latest-8a65dd483c
+  name: pod-busybox-latest-8a65dd483c
   namespace: argocd
   labels:
-    app: kaniko-job
+    app: kaniko-containerized-job
 spec:
-# ttlSecondsAfterFinished: 300
-  template:
-    spec:
-      restartPolicy: Never
-      # next two lines bind service account to Pod
-      serviceAccountName: kaniko-get-list-pod-serviceaccount
-      automountServiceAccountToken: true
-      containers:
-      - name:  pod-job-busybox-latest-8a65dd483c
-        image: gcr.io/kaniko-project/executor:debug
-        args: [
-                 "--context=dir://workspace",
-                 "--destination=gcorradini2023/busybox-latest:0.0.11",
-                 "--dockerfile=Dockerfile"
-        ]
-        volumeMounts:
-          - name: dockerhub-regcred-secret
-            mountPath: /kaniko/.docker
-          - name: dockerfile-volume
-            mountPath: /workspace
-          - name: kubectl-installation-busybox
-            mountPath: /usr/local/bin/
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
-      volumes:
-        - name: dockerhub-regcred-secret
-          secret:
-            secretName: dockerhub-regcred
-            items:
-              - key: .dockerconfigjson
-                path: config.json
-        - name: dockerfile-volume
-          configMap:
-            name: configmap-busybox-latest-8a65dd483c
-            items:
-              - key: dockerfile
-                path: Dockerfile
-        - name: kubectl-installation-busybox
-          configMap:
-            name: kubectl-installation-busybox
-            items:
-              - key:  terminate-cmd
-                path: kubectl-install-check-status-query.sh
-                mode: 0777
+  restartPolicy: Never
+  # next two lines bind service account to Pod
+  serviceAccountName: kaniko-get-list-pod-serviceaccount
+  automountServiceAccountToken: true
+  containers:
+  - name:  pod-job-busybox-latest-8a65dd483c
+    image: gcr.io/kaniko-project/executor:debug
+    args: [
+             "--context=dir://workspace",
+             "--destination=gcorradini2023/busybox-latest:0.0.11",
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+      - name: kubectl-installation-busybox
+        mountPath: /usr/local/bin/
+    lifecycle:
+      postStart:
+        exec:
+          command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: configmap-busybox-latest-8a65dd483c
+        items:
+          - key: dockerfile
+            path: Dockerfile
+    - name: kubectl-installation-busybox
+      configMap:
+        name: kubectl-installation-busybox
+        items:
+          - key:  terminate-cmd
+            path: kubectl-install-check-status-query.sh
+            mode: 0777
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Pod
 metadata:
-  name: job-python-buster-ac80d1c7c5
+  name: pod-python-buster-ac80d1c7c5
   namespace: argocd
   labels:
-    app: kaniko-job
+    app: kaniko-containerized-job
 spec:
-# ttlSecondsAfterFinished: 300
-  template:
-    spec:
-      restartPolicy: Never
-      # next two lines bind service account to Pod
-      serviceAccountName: kaniko-get-list-pod-serviceaccount
-      automountServiceAccountToken: true
-      containers:
-      - name:  pod-job-python-buster-ac80d1c7c5
-        image: gcr.io/kaniko-project/executor:debug
-        args: [
-                 "--context=dir://workspace",
-                 "--destination=gcorradini2023/python-buster:0.0.13",
-                 "--dockerfile=Dockerfile"
-        ]
-        volumeMounts:
-          - name: dockerhub-regcred-secret
-            mountPath: /kaniko/.docker
-          - name: dockerfile-volume
-            mountPath: /workspace
-          - name: kubectl-installation-busybox
-            mountPath: /usr/local/bin/
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
-      volumes:
-        - name: dockerhub-regcred-secret
-          secret:
-            secretName: dockerhub-regcred
-            items:
-              - key: .dockerconfigjson
-                path: config.json
-        - name: dockerfile-volume
-          configMap:
-            name: configmap-python-buster-ac80d1c7c5
-            items:
-              - key: dockerfile
-                path: Dockerfile
-        - name: kubectl-installation-busybox
-          configMap:
-            name: kubectl-installation-busybox
-            items:
-              - key:  terminate-cmd
-                path: kubectl-install-check-status-query.sh
-                mode: 0777
+  restartPolicy: Never
+  # next two lines bind service account to Pod
+  serviceAccountName: kaniko-get-list-pod-serviceaccount
+  automountServiceAccountToken: true
+  containers:
+  - name:  pod-job-python-buster-ac80d1c7c5
+    image: gcr.io/kaniko-project/executor:debug
+    args: [
+             "--context=dir://workspace",
+             "--destination=gcorradini2023/python-buster:0.0.13",
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+      - name: kubectl-installation-busybox
+        mountPath: /usr/local/bin/
+    lifecycle:
+      postStart:
+        exec:
+          command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: configmap-python-buster-ac80d1c7c5
+        items:
+          - key: dockerfile
+            path: Dockerfile
+    - name: kubectl-installation-busybox
+      configMap:
+        name: kubectl-installation-busybox
+        items:
+          - key:  terminate-cmd
+            path: kubectl-install-check-status-query.sh
+            mode: 0777
 ---
 # Source: manifest-builder/templates/manifests.yaml
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Pod
 metadata:
-  name: job-ubuntu-lunar-f833fb321d
+  name: pod-ubuntu-lunar-f833fb321d
   namespace: argocd
   labels:
-    app: kaniko-job
+    app: kaniko-containerized-job
 spec:
-# ttlSecondsAfterFinished: 300
-  template:
-    spec:
-      restartPolicy: Never
-      # next two lines bind service account to Pod
-      serviceAccountName: kaniko-get-list-pod-serviceaccount
-      automountServiceAccountToken: true
-      containers:
-      - name:  pod-job-ubuntu-lunar-f833fb321d
-        image: gcr.io/kaniko-project/executor:debug
-        args: [
-                 "--context=dir://workspace",
-                 "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
-                 "--dockerfile=Dockerfile"
-        ]
-        volumeMounts:
-          - name: dockerhub-regcred-secret
-            mountPath: /kaniko/.docker
-          - name: dockerfile-volume
-            mountPath: /workspace
-          - name: kubectl-installation-busybox
-            mountPath: /usr/local/bin/
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
-      volumes:
-        - name: dockerhub-regcred-secret
-          secret:
-            secretName: dockerhub-regcred
-            items:
-              - key: .dockerconfigjson
-                path: config.json
-        - name: dockerfile-volume
-          configMap:
-            name: configmap-ubuntu-lunar-f833fb321d
-            items:
-              - key: dockerfile
-                path: Dockerfile
-        - name: kubectl-installation-busybox
-          configMap:
-            name: kubectl-installation-busybox
-            items:
-              - key:  terminate-cmd
-                path: kubectl-install-check-status-query.sh
-                mode: 0777
+  restartPolicy: Never
+  # next two lines bind service account to Pod
+  serviceAccountName: kaniko-get-list-pod-serviceaccount
+  automountServiceAccountToken: true
+  containers:
+  - name:  pod-job-ubuntu-lunar-f833fb321d
+    image: gcr.io/kaniko-project/executor:debug
+    args: [
+             "--context=dir://workspace",
+             "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+      - name: kubectl-installation-busybox
+        mountPath: /usr/local/bin/
+    lifecycle:
+      postStart:
+        exec:
+          command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: configmap-ubuntu-lunar-f833fb321d
+        items:
+          - key: dockerfile
+            path: Dockerfile
+    - name: kubectl-installation-busybox
+      configMap:
+        name: kubectl-installation-busybox
+        items:
+          - key:  terminate-cmd
+            path: kubectl-install-check-status-query.sh
+            mode: 0777
