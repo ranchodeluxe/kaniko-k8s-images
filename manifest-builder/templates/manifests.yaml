@@ -42,7 +42,7 @@ metadata:
   labels:
     app: kaniko-containerized-job
 spec:
-  #restartPolicy: Never
+  restartPolicy: Never
   # next two lines bind service account to Pod
   serviceAccountName: kaniko-get-list-pod-serviceaccount
   automountServiceAccountToken: true
