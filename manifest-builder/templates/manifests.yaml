@@ -33,6 +33,7 @@ data:
   dockerfile: |
   {{- $.Files.Get $filepath | nindent 4 }}
 ---
+
 apiVersion: v1
 kind: Pod
 metadata:
