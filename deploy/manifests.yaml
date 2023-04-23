@@ -22,11 +22,10 @@ data:
     query=$(kubectl get pods -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}' $HOSTNAME)
     if [ "$query" = "Completed" ];
     then
-       printf "[ GRACEFUL EXIT ]: status already completed\n"
+       printf "[ GRACEFUL EXIT ]: status already 'Completed', exiting...\n"
        exit 0
     else
-       printf "[ EXITING ]: status not completed\n"
-       exit 1
+       printf "[ QUERY ]: status not 'Completed', continuing on...\n"
     fi
 ---
 # Source: manifest-builder/templates/manifests.yaml
@@ -134,7 +133,7 @@ roleRef:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-busybox-latest-8a65dd483c
+  name: pod-job-busybox-latest-8a65dd483c
   namespace: argocd
   labels:
     app: kaniko-containerized-job
@@ -187,7 +186,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-python-buster-ac80d1c7c5
+  name: pod-job-python-buster-ac80d1c7c5
   namespace: argocd
   labels:
     app: kaniko-containerized-job
@@ -240,7 +239,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-ubuntu-lunar-f833fb321d
+  name: pod-job-ubuntu-lunar-f833fb321d
   namespace: argocd
   labels:
     app: kaniko-containerized-job
