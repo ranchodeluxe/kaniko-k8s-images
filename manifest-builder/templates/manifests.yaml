@@ -34,63 +34,60 @@ data:
   dockerfile: |
   {{- $.Files.Get $filepath | nindent 4 }}
 ---
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Pod
 metadata:
-  name: job-{{ $basename_sha_suffix }}
+  name: pod-{{ $basename_sha_suffix }}
   namespace: argocd
   labels:
-    app: kaniko-job
+    app: kaniko-containerized-job
 spec:
-# ttlSecondsAfterFinished: 300
-  template:
-    spec:
-      restartPolicy: Never
-      # next two lines bind service account to Pod
-      serviceAccountName: kaniko-get-list-pod-serviceaccount
-      automountServiceAccountToken: true
-      containers:
-      - name:  pod-job-{{ $basename_sha_suffix }}
-        image: gcr.io/kaniko-project/executor:debug
-        args: [
-                 "--context=dir://workspace",
-                 {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
-                 {{- $version := get $.Values.versionLookup $versionlookuppath -}}
-                 {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
-                 {{ $destination | nindent 17 }},
-                 "--dockerfile=Dockerfile"
-        ]
-        volumeMounts:
-          - name: dockerhub-regcred-secret
-            mountPath: /kaniko/.docker
-          - name: dockerfile-volume
-            mountPath: /workspace
-          - name: kubectl-installation-busybox
-            mountPath: /usr/local/bin/
-        lifecycle:
-          postStart:
-            exec:
-              command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
-      volumes:
-        - name: dockerhub-regcred-secret
-          secret:
-            secretName: dockerhub-regcred
-            items:
-              - key: .dockerconfigjson
-                path: config.json
-        - name: dockerfile-volume
-          configMap:
-            name: configmap-{{ $basename_sha_suffix }}
-            items:
-              - key: dockerfile
-                path: Dockerfile
-        - name: kubectl-installation-busybox
-          configMap:
-            name: kubectl-installation-busybox
-            items:
-              - key:  terminate-cmd
-                path: kubectl-install-check-status-query.sh
-                mode: 0777
+  restartPolicy: Never
+  # next two lines bind service account to Pod
+  serviceAccountName: kaniko-get-list-pod-serviceaccount
+  automountServiceAccountToken: true
+  containers:
+  - name:  pod-job-{{ $basename_sha_suffix }}
+    image: gcr.io/kaniko-project/executor:debug
+    args: [
+             "--context=dir://workspace",
+             {{- $versionlookuppath := ($filepath | replace ":" "-" ) }}
+             {{- $version := get $.Values.versionLookup $versionlookuppath -}}
+             {{- $destination := printf "\"--destination=gcorradini2023/%s:%s\"" $basename $version -}}
+             {{ $destination | nindent 13 }},
+             "--dockerfile=Dockerfile"
+    ]
+    volumeMounts:
+      - name: dockerhub-regcred-secret
+        mountPath: /kaniko/.docker
+      - name: dockerfile-volume
+        mountPath: /workspace
+      - name: kubectl-installation-busybox
+        mountPath: /usr/local/bin/
+    lifecycle:
+      postStart:
+        exec:
+          command: [ "/bin/sh", "-c", "kubectl-install-check-status-query.sh" ]
+  volumes:
+    - name: dockerhub-regcred-secret
+      secret:
+        secretName: dockerhub-regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockerfile-volume
+      configMap:
+        name: configmap-{{ $basename_sha_suffix }}
+        items:
+          - key: dockerfile
+            path: Dockerfile
+    - name: kubectl-installation-busybox
+      configMap:
+        name: kubectl-installation-busybox
+        items:
+          - key:  terminate-cmd
+            path: kubectl-install-check-status-query.sh
+            mode: 0777
 ---
 {{- end }}
 {{- end }}
