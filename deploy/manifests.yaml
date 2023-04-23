@@ -256,6 +256,13 @@ spec:
              "--destination=gcorradini2023/ubuntu-lunar:0.0.15",
              "--dockerfile=Dockerfile"
     ]
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "300m"
+      limits:
+        memory: "768Mi"
+        cpu: "500m"
     volumeMounts:
       - name: dockerhub-regcred-secret
         mountPath: /kaniko/.docker
