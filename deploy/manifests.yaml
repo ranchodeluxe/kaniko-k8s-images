@@ -138,6 +138,17 @@ rules:
 ---
 # Source: manifest-builder/templates/manifests.yaml
 apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kaniko-pod-create-event-role
+  namespace: argocd
+rules:
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create"]
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: kaniko-pod-reader-role-binding
@@ -149,6 +160,21 @@ subjects:
 roleRef:
   kind: Role
   name: kaniko-pod-reader-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: manifest-builder/templates/manifests.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kaniko-pod-create-event-role-binding
+  namespace: argocd
+subjects:
+  - kind: ServiceAccount
+    name: kaniko-get-list-pod-serviceaccount
+    namespace: argocd
+roleRef:
+  kind: Role
+  name: kaniko-pod-create-event-role
   apiGroup: rbac.authorization.k8s.io
 ---
 # Source: manifest-builder/templates/manifests.yaml
