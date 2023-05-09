@@ -29,8 +29,7 @@
 
 ### Goal:
 
-Docker CI image-building pipeline in k8s via `argocd` and `kaniko`. 
-Now we have our Docker images && caches on EFS as close to the k8s cluster as possible
+Docker CI image-building pipeline in k8s via `argocd` and `kaniko`. Just because
 
 
 ### Workflow
